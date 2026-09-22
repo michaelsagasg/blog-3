@@ -1,0 +1,139 @@
+---
+import Banner from '../components/Banner.astro';
+import Logo from '../components/Logo.astro';
+import { site, getPosts, countBy, catLabel, catShort, catTone, withBase, stripBase } from '../lib/site';
+
+interface Props { title: string; description?: string; type?: 'website' | 'article'; jsonLd?: object }
+const { title, description, type = 'website', jsonLd } = Astro.props;
+
+const posts = await getPosts();
+const categories = countBy(posts, (p) => p.data.category).slice(0, 6);
+const pageTitle = title === site.name ? site.name : `${title} | ${site.name}`;
+const path = stripBase(Astro.url.pathname);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    {description && <meta name="description" content={description} />}
+    <title>{pageTitle}</title>
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:title" content={pageTitle} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalUrl} />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Non-render-blocking: preload the font CSS, then swap it to a real stylesheet once fetched (noscript covers JS-off). */}
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Spline+Sans+Mono:wght@400;600&display=swap" /></noscript>
+    <link rel="stylesheet" href={withBase('/styles/site.css')} />
+    <script is:inline>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+  </head>
+  <body class={path === '/' ? 'is-home' : undefined}>
+    <Banner />
+    <header class="bar">
+      <div class="bar-in">
+        <a class="brand" href={withBase('/')} aria-label={`${site.name} home`}><Logo /></a>
+        <nav aria-label="Main">
+          {categories.map(([c]) => <a href={withBase(`/category/${c}/`)} aria-current={path.startsWith(`/category/${c}/`) ? 'page' : undefined}><span class="long">{catLabel(c)}</span><span class="short">{catShort(c)}</span></a>)}
+          {site.nav.map((n) => <a href={withBase(n.href)} aria-current={path === n.href ? 'page' : undefined}><span class="long">{n.label}</span><span class="short">{n.short ?? n.label}</span></a>)}
+        </nav>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" /></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" /></svg>
+        </button>
+      </div>
+    </header>
+    <main><slot /></main>
+    <footer class="foot">
+      <div class="foot-in">
+        <div>
+          <p class="foot-brand"><Logo /></p>
+          <p>{site.tagline}</p>
+        </div>
+        <nav aria-label="Topics">
+          {categories.map(([c, n]) => <a class={`t-${catTone(c)}`} href={withBase(`/category/${c}/`)}><i aria-hidden="true"></i>{catLabel(c)} <span>{n}</span></a>)}
+        </nav>
+      </div>
+      <p class="foot-copy">© {new Date().getFullYear()} {site.name}</p>
+      <!-- prod: legal and licensing links go here -->
+    </footer>
+    <script is:inline>
+      (function () {
+        var tg = document.querySelector('[data-theme-toggle]');
+        if (tg) {
+          var sync = function () { tg.setAttribute('aria-label', document.documentElement.getAttribute('data-theme') === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'); };
+          sync();
+          tg.addEventListener('click', function () {
+            var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            sync();
+          });
+        }
+        document.querySelectorAll('.prose table').forEach(function (t) {
+          var w = document.createElement('div'); w.className = 'table-wrap';
+          t.parentNode.insertBefore(w, t); w.appendChild(t);
+        });
+        var toc = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+        if (toc.length && 'IntersectionObserver' in window) {
+          var byId = {};
+          toc.forEach(function (a) { byId[decodeURIComponent(a.hash.slice(1))] = a; });
+          var tio = new IntersectionObserver(function (es) {
+            es.forEach(function (e) {
+              if (!e.isIntersecting) return;
+              toc.forEach(function (a) { a.removeAttribute('aria-current'); });
+              if (byId[e.target.id]) byId[e.target.id].setAttribute('aria-current', 'true');
+            });
+          }, { rootMargin: '0px 0px -70% 0px' });
+          Object.keys(byId).forEach(function (id) { var h = document.getElementById(id); if (h) tio.observe(h); });
+        }
+        var root = document.querySelector('[data-filter-root]');
+        if (!root) return;
+        var cards = Array.prototype.slice.call(root.querySelectorAll('[data-cat]'));
+        var input = document.querySelector('[data-search]');
+        var chips = Array.prototype.slice.call(document.querySelectorAll('[data-chip]'));
+        var more = document.querySelector('[data-more]');
+        var empty = document.querySelector('[data-empty]');
+        var step = parseInt(root.getAttribute('data-limit') || '0', 10) || 9999;
+        var st = { cat: 'all', q: '', limit: step };
+        var render = function () {
+          var shown = 0, matched = 0;
+          cards.forEach(function (c) {
+            var ok = (st.cat === 'all' || c.getAttribute('data-cat') === st.cat) && (!st.q || c.getAttribute('data-text').indexOf(st.q) > -1);
+            if (ok) matched++;
+            var vis = ok && shown < st.limit;
+            if (vis) shown++;
+            c.hidden = !vis;
+          });
+          if (more) { more.hidden = matched <= shown; more.querySelector('span').textContent = String(matched - shown); }
+          if (empty) empty.hidden = matched > 0;
+        };
+        if (input) input.addEventListener('input', function () { st.q = input.value.trim().toLowerCase(); st.limit = step; render(); });
+        chips.forEach(function (ch) {
+          ch.addEventListener('click', function () {
+            st.cat = ch.getAttribute('data-chip'); st.limit = step;
+            chips.forEach(function (o) { o.setAttribute('aria-pressed', String(o === ch)); });
+            render();
+          });
+        });
+        if (more) more.addEventListener('click', function () { st.limit += step; render(); });
+        render();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, catLabel, catBlurb, catTone, catSymbol } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const cats = [...new Set(posts.map((p) => p.data.category))];
+  return cats.map((category) => ({ params: { category }, props: { posts: posts.filter((p) => p.data.category === category) } }));
+}
+const { category } = Astro.params;
+const { posts } = Astro.props;
+---
+<Base title={catLabel(category)} description={catBlurb(category)}>
+  <div class="wrap">
+    <section class={`page-head has-el t-${catTone(category)}`}>
+      <span class="el el-static" aria-hidden="true"><span class="el-n">{posts.length}</span><span class="el-sym">{catSymbol(category)}</span></span>
+      <div>
+        <h1>{catLabel(category)}</h1>
+        <p>{catBlurb(category)} {posts.length} articles.</p>
+      </div>
+    </section>
+    <PostList posts={posts} cat={false} />
+  </div>
+</Base>

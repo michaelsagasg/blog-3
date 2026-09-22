@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts, countBy, catLabel, catTone, catSymbol } from '../lib/site';
+const posts = await getPosts();
+const cats = countBy(posts, (p) => p.data.category);
+---
+<Base title="All articles" description="Every article on the site. Search by keyword or filter by topic.">
+  <div class="wrap library" data-filter-root>
+    <section class="page-head">
+      <h1>All articles</h1>
+      <p>{posts.length} guides. Search or filter by topic.</p>
+    </section>
+    <div class="lib-head">
+      <ul class="filters" aria-label="Filter by topic">
+        <li><button type="button" data-chip="all" aria-pressed="true">All <span>{posts.length}</span></button></li>
+        {cats.map(([cat, n]) => <li><button class={`t-${catTone(cat)}`} type="button" data-chip={cat} aria-pressed="false"><b>{catSymbol(cat)}</b>{catLabel(cat)} <span>{n}</span></button></li>)}
+      </ul>
+      <form class="search" role="search" onsubmit="return false">
+        <input type="search" data-search placeholder="Search all articles" aria-label="Search articles" autocomplete="off" />
+      </form>
+    </div>
+    <ul class="list cols three">{posts.map((p) => <PostCard post={p} />)}</ul>
+    <p class="empty" data-empty hidden>No articles match that search. Try a different word.</p>
+  </div>
+</Base>

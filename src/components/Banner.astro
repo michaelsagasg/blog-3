@@ -1,0 +1,14 @@
+---
+import { site, bannerHref } from '../lib/site';
+const b = site.banner;
+---
+{b.enabled && (
+  <aside class="shopbar" aria-label="Shop link">
+    <div class="shopbar-in">
+      {b.label && <small>{b.label}</small>}
+      <span class="long">{b.headline}</span>
+      <span class="short">{b.short ?? b.headline}</span>
+      <a href={bannerHref(b.url)} rel="sponsored noopener">{b.button} <span aria-hidden="true">→</span></a>
+    </div>
+  </aside>
+)}

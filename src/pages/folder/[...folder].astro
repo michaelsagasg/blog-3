@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, folderOf } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const folders = [...new Set(posts.map(folderOf).filter(Boolean))];
+  return folders.map((folder) => ({ params: { folder }, props: { posts: posts.filter((p) => folderOf(p) === folder) } }));
+}
+const { folder } = Astro.params;
+const { posts } = Astro.props;
+---
+<Base title={`Folder: ${folder}`}>
+  <div class="wrap">
+    <section class="page-head"><h1>{folder}</h1><p>{posts.length} articles</p></section>
+    <PostList posts={posts} />
+  </div>
+</Base>

@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { render } from 'astro:content';
+import { getPosts, fmtDate, postUrl, readingTime, catLabel, catTone, catSymbol, withBase, articleJsonLd } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => {
+    const same = posts.filter((p) => p.id !== post.id && p.data.category === post.data.category);
+    const others = posts.filter((p) => p.id !== post.id && p.data.category !== post.data.category);
+    return { params: { id: post.id }, props: { post, newer: posts[i - 1], older: posts[i + 1], related: [...same, ...others].slice(0, 3) } };
+  });
+}
+const { post, newer, older, related } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter((h) => h.depth === 2);
+const c = post.data.category;
+---
+<Base title={post.data.title} description={post.data.description} type="article" jsonLd={articleJsonLd(post)}>
+  <div class={`wrap art t-${catTone(c)}`}>
+    <header class="art-head">
+      <p class="crumbs"><a href={withBase('/')}>Home</a> <span aria-hidden="true">/</span> <a class="crumb-cat" href={withBase(`/category/${c}/`)}><b>{catSymbol(c)}</b>{catLabel(c)}</a></p>
+      <h1>{post.data.title}</h1>
+      <p class="art-lede">{post.data.description}</p>
+      <p class="art-meta"><time datetime={post.data.date.toISOString()}>{fmtDate(post.data.date)}</time> · {readingTime(post)} min read</p>
+    </header>
+    {toc.length > 2 && (
+      <nav class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+      </nav>
+    )}
+    <article class="prose"><Content /></article>
+    <p class="post-tools">
+      <a href={withBase(`/category/${c}/`)}>More in {catLabel(c)}</a>
+    </p>
+  </div>
+  {related.length > 0 && (
+    <section class="wrap related" aria-labelledby="keep">
+      <h2 id="keep">Keep reading</h2>
+      <ul class="list cols three">{related.map((p) => <PostCard post={p} />)}</ul>
+    </section>
+  )}
+  <nav class="wrap pager" aria-label="More posts">
+    {newer ? <a href={postUrl(newer)}><span>Newer</span>{newer.data.title}</a> : <span></span>}
+    {older ? <a class="next" href={postUrl(older)}><span>Older</span>{older.data.title}</a> : <span></span>}
+  </nav>
+</Base>

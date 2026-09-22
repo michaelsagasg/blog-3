@@ -1,0 +1,26 @@
+---
+// An insulated shipping box, cutaway, with a thermometer gauge reading a cold-chain
+// temperature range. Deliberately not blog-1's peptide-chain illustration or blog A's
+// dose-ladder chart.
+---
+<svg class="hero-art" viewBox="0 0 420 400" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="ha-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M20 0H0V20" fill="none" stroke="currentColor" stroke-opacity=".08" />
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="420" height="400" fill="url(#ha-grid)" />
+  <rect class="ha-box" x="50" y="90" width="320" height="240" rx="10" />
+  <rect class="ha-lid" x="50" y="90" width="320" height="46" rx="10" />
+  <g class="ha-dash">
+    <rect x="66" y="150" width="288" height="164" rx="6" fill="none" stroke-dasharray="6 5" />
+  </g>
+  <g class="ha-gauge">
+    <rect x="185" y="170" width="50" height="120" rx="25" fill="none" stroke-width="3" />
+    <rect x="197" y="185" width="26" height="80" rx="13" class="ha-fill" />
+    <circle cx="210" cy="272" r="17" class="ha-bulb" />
+  </g>
+  <text x="270" y="200" class="ha-label">2&#8211;8&#176;C</text>
+  <text x="270" y="222" class="ha-label ha-sub">cold chain range</text>
+  <path class="ha-tick" d="M110 190h30M110 210h30M110 230h30M110 250h30" />
+</svg>

@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import HeroArt from '../components/HeroArt.astro';
+import { site, getPosts, countBy, catLabel, catBlurb, catTone, catSymbol, fmtDate, postUrl, readingTime, withBase, bannerHref, orgJsonLd } from '../lib/site';
+const posts = await getPosts();
+const cats = countBy(posts, (p) => p.data.category);
+const [lead, ...rest] = posts;
+const side = rest.slice(0, 3);
+const b = site.banner;
+---
+<Base title={site.name} description={site.tagline || undefined} jsonLd={orgJsonLd(Astro.site!)}>
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div class="hero-copy">
+        {lead && <p class="dateline">Updated {fmtDate(lead.data.date)}</p>}
+        <h1>Retatrutide and tirzepatide, kept cold from dispatch to your door</h1>
+        <p class="hero-sub">What real cold-chain shipping looks like, how long a peptide survives without it, and how to check a UK seller actually does it before you order.</p>
+        <div class="hero-cta">
+          {b.enabled && <a class="btn-shop" href={bannerHref(b.url)} rel="sponsored noopener">{b.button} <span aria-hidden="true">→</span></a>}
+          <a class="btn-ghost" href="#all">Browse the guides</a>
+        </div>
+      </div>
+      <HeroArt />
+    </div>
+  </section>
+
+  <section class="wrap elements" aria-labelledby="topics">
+    <h2 id="topics" class="sec-title">The cold chain, by topic</h2>
+    <ul class="ptable">
+      {cats.map(([c, n]) => (
+        <li>
+          <a class={`el t-${catTone(c)}`} href={withBase(`/category/${c}/`)}>
+            <span class="el-n">{n}</span>
+            <span class="el-sym">{catSymbol(c)}</span>
+            <span class="el-name">{catLabel(c)}</span>
+            <span class="el-blurb">{catBlurb(c)}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {lead && (
+    <section class="wrap front" aria-label="Latest">
+      <article class={`lead t-${catTone(lead.data.category)}`} data-sym={catSymbol(lead.data.category)}>
+        <p class="kicker"><b>{catSymbol(lead.data.category)}</b>Latest · {catLabel(lead.data.category)}</p>
+        <h2><a href={postUrl(lead)}>{lead.data.title}</a></h2>
+        <p class="desc">{lead.data.description}</p>
+        <p class="meta"><time datetime={lead.data.date.toISOString()}>{fmtDate(lead.data.date)}</time> · {readingTime(lead)} min read</p>
+        <a class="read-link" href={postUrl(lead)}>Read the guide <span aria-hidden="true">→</span></a>
+      </article>
+      <ul class="side list">{side.map((p) => <PostCard post={p} />)}</ul>
+    </section>
+  )}
+
+  {b.enabled && (
+    <section class="shopband" aria-label="Shop">
+      <div class="wrap shopband-in">
+        <div>
+          <h2>{b.headline}</h2>
+          <a class="btn-dark" href={bannerHref(b.url)} rel="sponsored noopener">{b.button} <span aria-hidden="true">→</span></a>
+        </div>
+        <svg class="shopband-art" viewBox="0 0 300 160" aria-hidden="true" focusable="false">
+          <rect x="60" y="20" width="180" height="120" rx="8" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="7 5" />
+          <rect x="130" y="45" width="40" height="70" rx="20" fill="none" stroke="currentColor" stroke-width="3" />
+          <circle cx="150" cy="100" r="10" fill="currentColor" />
+        </svg>
+      </div>
+    </section>
+  )}
+
+  <section class="wrap library" data-filter-root data-limit="12" aria-labelledby="all">
+    <div class="lib-head">
+      <h2 id="all" class="sec-title">All guides</h2>
+      <form class="search" role="search" onsubmit="return false">
+        <input type="search" data-search placeholder="Search, for example ice packs or shelf life" aria-label="Search articles" autocomplete="off" />
+      </form>
+    </div>
+    <ul class="filters" aria-label="Filter by topic">
+      <li><button type="button" data-chip="all" aria-pressed="true">All <span>{posts.length}</span></button></li>
+      {cats.map(([cat, n]) => <li><button class={`t-${catTone(cat)}`} type="button" data-chip={cat} aria-pressed="false"><b>{catSymbol(cat)}</b>{catLabel(cat)} <span>{n}</span></button></li>)}
+    </ul>
+    <ul class="list cols three">{posts.map((p) => <PostCard post={p} level={3} />)}</ul>
+    <p class="empty" data-empty hidden>No articles match that search. Try a different word.</p>
+    <div class="more"><button class="btn" type="button" data-more hidden>Show <span>more</span> more articles</button></div>
+  </section>
+</Base>
