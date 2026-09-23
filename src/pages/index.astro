@@ -6,35 +6,46 @@ import { site, getPosts, countBy, catLabel, catBlurb, catTone, catSymbol, fmtDat
 const posts = await getPosts();
 const cats = countBy(posts, (p) => p.data.category);
 const [lead, ...rest] = posts;
-const side = rest.slice(0, 3);
+const latest = posts.slice(0, 6);
 const b = site.banner;
 ---
 <Base title={site.name} description={site.tagline || undefined} jsonLd={orgJsonLd(Astro.site!)}>
   <section class="hero">
-    <div class="wrap hero-in">
-      <div class="hero-copy">
-        {lead && <p class="dateline">Updated {fmtDate(lead.data.date)}</p>}
-        <h1>Retatrutide and tirzepatide, kept cold from dispatch to your door</h1>
-        <p class="hero-sub">What real cold-chain shipping looks like, how long a peptide survives without it, and how to check a UK seller actually does it before you order.</p>
-        <div class="hero-cta">
-          {b.enabled && <a class="btn-shop" href={bannerHref(b.url)} rel="sponsored noopener">{b.button} <span aria-hidden="true">→</span></a>}
-          <a class="btn-ghost" href="#all">Browse the guides</a>
+    <div class="wrap">
+      <div class="hero-label">
+        <span class="reg-tick tick-tl" aria-hidden="true"></span>
+        <span class="reg-tick tick-tr" aria-hidden="true"></span>
+        <span class="reg-tick tick-bl" aria-hidden="true"></span>
+        <span class="reg-tick tick-br" aria-hidden="true"></span>
+        <div class="barcode" aria-hidden="true"></div>
+        <div class="hero-in">
+          <div class="hero-copy">
+            {lead && <p class="dateline">Updated {fmtDate(lead.data.date)}</p>}
+            <h1>Retatrutide and tirzepatide, kept cold from dispatch to your door</h1>
+            <p class="hero-sub">What real cold-chain shipping looks like, how long a peptide survives without it, and how to check a UK seller actually does it before you order.</p>
+            <div class="hero-cta">
+              {b.enabled && <a class="btn-shop" href={bannerHref(b.url)} rel="sponsored noopener">{b.button} <span aria-hidden="true">→</span></a>}
+              <a class="btn-ghost" href="#all">Browse the guides</a>
+            </div>
+          </div>
+          <HeroArt />
         </div>
       </div>
-      <HeroArt />
     </div>
   </section>
 
-  <section class="wrap elements" aria-labelledby="topics">
+  <section class="wrap badges" aria-labelledby="topics">
     <h2 id="topics" class="sec-title">The cold chain, by topic</h2>
-    <ul class="ptable">
+    <ul class="stamp-row">
       {cats.map(([c, n]) => (
         <li>
-          <a class={`el t-${catTone(c)}`} href={withBase(`/category/${c}/`)}>
-            <span class="el-n">{n}</span>
-            <span class="el-sym">{catSymbol(c)}</span>
-            <span class="el-name">{catLabel(c)}</span>
-            <span class="el-blurb">{catBlurb(c)}</span>
+          <a class={`stamp t-${catTone(c)}`} href={withBase(`/category/${c}/`)}>
+            <span class="stamp-ring">
+              <span class="stamp-code">{catSymbol(c)}</span>
+              <span class="stamp-n">{n}</span>
+            </span>
+            <span class="stamp-label">{catLabel(c)}</span>
+            <span class="stamp-blurb">{catBlurb(c)}</span>
           </a>
         </li>
       ))}
@@ -42,30 +53,26 @@ const b = site.banner;
   </section>
 
   {lead && (
-    <section class="wrap front" aria-label="Latest">
-      <article class={`lead t-${catTone(lead.data.category)}`} data-sym={catSymbol(lead.data.category)}>
-        <p class="kicker"><b>{catSymbol(lead.data.category)}</b>Latest · {catLabel(lead.data.category)}</p>
-        <h2><a href={postUrl(lead)}>{lead.data.title}</a></h2>
-        <p class="desc">{lead.data.description}</p>
-        <p class="meta"><time datetime={lead.data.date.toISOString()}>{fmtDate(lead.data.date)}</time> · {readingTime(lead)} min read</p>
-        <a class="read-link" href={postUrl(lead)}>Read the guide <span aria-hidden="true">→</span></a>
-      </article>
-      <ul class="side list">{side.map((p) => <PostCard post={p} />)}</ul>
+    <section class="wrap labels" aria-label="Latest">
+      <h2 class="sec-title">Latest labels</h2>
+      <ul class="list cols three">{latest.map((p) => <PostCard post={p} />)}</ul>
     </section>
   )}
 
   {b.enabled && (
-    <section class="shopband" aria-label="Shop">
-      <div class="wrap shopband-in">
+    <section class="wrap customs" aria-label="Shop">
+      <div class="customs-box">
+        <svg class="customs-stamp" viewBox="0 0 80 80" aria-hidden="true" focusable="false">
+          <circle cx="40" cy="40" r="33" fill="none" stroke="currentColor" stroke-width="2.5" />
+          <circle cx="40" cy="40" r="25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 3" />
+          <text x="40" y="36" text-anchor="middle" class="customs-stamp-t">ENZO</text>
+          <text x="40" y="50" text-anchor="middle" class="customs-stamp-t">MEDS</text>
+        </svg>
         <div>
+          <p class="customs-kicker">Customs declaration</p>
           <h2>{b.headline}</h2>
           <a class="btn-dark" href={bannerHref(b.url)} rel="sponsored noopener">{b.button} <span aria-hidden="true">→</span></a>
         </div>
-        <svg class="shopband-art" viewBox="0 0 300 160" aria-hidden="true" focusable="false">
-          <rect x="60" y="20" width="180" height="120" rx="8" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="7 5" />
-          <rect x="130" y="45" width="40" height="70" rx="20" fill="none" stroke="currentColor" stroke-width="3" />
-          <circle cx="150" cy="100" r="10" fill="currentColor" />
-        </svg>
       </div>
     </section>
   )}

@@ -47,7 +47,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
     <Banner />
     <header class="bar">
       <div class="bar-in">
-        <a class="brand" href={withBase('/')} aria-label={`${site.name} home`}><Logo /></a>
+        <a class="brand" href={withBase('/')} aria-label={`${site.name} home`}><span class="brand-label"><Logo /></span></a>
         <nav aria-label="Main">
           {categories.map(([c]) => <a href={withBase(`/category/${c}/`)} aria-current={path.startsWith(`/category/${c}/`) ? 'page' : undefined}><span class="long">{catLabel(c)}</span><span class="short">{catShort(c)}</span></a>)}
           {site.nav.map((n) => <a href={withBase(n.href)} aria-current={path === n.href ? 'page' : undefined}><span class="long">{n.label}</span><span class="short">{n.short ?? n.label}</span></a>)}
