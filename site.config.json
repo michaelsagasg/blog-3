@@ -1,6 +1,7 @@
 {
   "slug": "blog-3",
   "name": "PeptideChill",
+  "domain": "peptidechill.co.uk",
   "tagline": "Cold-chain storage, shipping and shelf-life guides for retatrutide and tirzepatide buyers in the UK.",
   "nav": [
     { "label": "All articles", "short": "All", "href": "/archive/" }
