@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PostCard from '../../components/PostCard.astro';
 import { render } from 'astro:content';
-import { getPosts, fmtDate, postUrl, readingTime, catLabel, catTone, catSymbol, withBase, articleJsonLd } from '../../lib/site';
+import { getPosts, fmtDate, postUrl, readingTime, catLabel, catTone, catSymbol, withBase, articleJsonLd, site, bannerHref } from '../../lib/site';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -46,4 +46,9 @@ const c = post.data.category;
     {newer ? <a href={postUrl(newer)}><span>Newer</span>{newer.data.title}</a> : <span></span>}
     {older ? <a class="next" href={postUrl(older)}><span>Older</span>{older.data.title}</a> : <span></span>}
   </nav>
+  {site.banner.enabled && (
+    <div class="wrap end-shop">
+      <a class="btn-shop" href={bannerHref(site.banner.url)} rel="sponsored noopener">{site.banner.button} <span aria-hidden="true">→</span></a>
+    </div>
+  )}
 </Base>
