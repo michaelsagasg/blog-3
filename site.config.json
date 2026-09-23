@@ -4,14 +4,18 @@
   "domain": "peptidechill.co.uk",
   "tagline": "Cold-chain storage, shipping and shelf-life guides for retatrutide and tirzepatide buyers in the UK.",
   "nav": [
-    { "label": "All articles", "short": "All", "href": "/archive/" }
+    {
+      "label": "All articles",
+      "short": "All",
+      "href": "/archive/"
+    }
   ],
   "banner": {
     "enabled": true,
-    "headline": "Retatrutide and tirzepatide shipped cold, with the COA on the listing.",
+    "headline": "Shop at Enzo Meds - next day UK delivery",
     "button": "Shop Enzo Meds",
     "url": "https://enzomeds.com",
     "label": "",
-    "short": "Shop Enzo Meds"
+    "short": "Shop at Enzo Meds - next day UK delivery"
   }
 }
